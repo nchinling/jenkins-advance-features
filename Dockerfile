@@ -1,6 +1,6 @@
 # Stage 1: Build the application
-# FROM maven:3.9.8-amazoncorretto-17 AS build
-FROM eclipse-temurin:21-jdk AS build
+FROM maven:3.9.8-amazoncorretto-19 AS build
+
 
 # Set the working directory
 WORKDIR /app
