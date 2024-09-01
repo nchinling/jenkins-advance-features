@@ -14,13 +14,20 @@ pipeline {
                 echo "Clean successful"
             }
         }
-        // stage("Test") {
-        //     steps {
-        //         echo "Start Test"
-        //         bat "mvn test"
-        //         echo "Test completed"
-        //     }
-        // }
+        stage("Test") {
+            steps {
+                echo "Start Test"
+                catchError(buildResult: 'UNSTABLE', message: 'Tests failed') {
+                    bat "mvn test"
+                }
+                echo "Test completed"
+            }
+            // steps {
+            //     echo "Start Test"
+            //     bat "mvn test"
+            //     echo "Test completed"
+            // }
+        }
         // stage("Sonar") {
         //     steps {
         //         echo "Start Sonar"
