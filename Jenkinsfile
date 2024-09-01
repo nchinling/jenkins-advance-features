@@ -40,7 +40,14 @@ pipeline {
                 echo "Build completed"
             }
         }
-        stage('Confirm Deploy to Staging') {
+        stage('Archive') {
+            steps {
+                echo 'Archiving artifacts...'
+                // Archive the specified files or directories
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+            }
+        }
+        stage('Confirm Deploy to Docker') {
             steps {
             input(message: 'Deploy to Docker', ok: 'Yes')
             }
