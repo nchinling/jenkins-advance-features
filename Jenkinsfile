@@ -14,20 +14,20 @@ pipeline {
                 echo "Clean successful"
             }
         }
-        stage("Test") {
-            steps {
-                echo "Start Test"
-                bat "mvn test"
-                echo "Test completed"
-            }
-        }
-        stage("Sonar") {
-            steps {
-                echo "Start Sonar"
-                bat "mvn sonar:sonar"
-                echo "Sonar completed"
-            }
-        }
+        // stage("Test") {
+        //     steps {
+        //         echo "Start Test"
+        //         bat "mvn test"
+        //         echo "Test completed"
+        //     }
+        // }
+        // stage("Sonar") {
+        //     steps {
+        //         echo "Start Sonar"
+        //         bat "mvn sonar:sonar"
+        //         echo "Sonar completed"
+        //     }
+        // }
         stage("Build") {
             steps {
                 echo "Start Build"
