@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         maven 'maven_3.8.7'
-        jdk 'JDK21'
+        jdk 'JDK19'
     }
 
     stages {
@@ -40,6 +40,11 @@ pipeline {
                 echo "Start Build"
                 bat "mvn install -DskipTests"
                 echo "Build completed"
+            }
+        }
+        stage('Confirm Deploy to Staging') {
+            steps {
+            input(message: 'Deploy to Stage', ok: 'Yes')
             }
         }
         stage("Containerise and Send Email") {
