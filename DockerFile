@@ -8,7 +8,7 @@ WORKDIR /app
 COPY pom.xml ./
 COPY src src
 
-# Package the application
+# Package the application. Skip tests
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run the application
