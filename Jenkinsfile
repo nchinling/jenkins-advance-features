@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'DEPLOY_TO_AWS', defaultValue: false, description: 'Deploy to AWS?')
+    }
+
     tools {
         maven 'maven_3.8.7'
         jdk 'JDK21'
@@ -91,6 +95,14 @@ pipeline {
 								}
 							}
 						}
+                    }
+                }
+                stage('Trigger to AWS') {
+                    when {
+                        expression { return params.DEPLOY_TO_AWS }
+                    }
+                    steps {
+                        echo 'Deploying to AWS'
                     }
                 }
             }
