@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <title>Your result</title>
+</head>
+<body>
+    <body data-th-object="${calculatorresults}">
+        <div class = "container" align="center">
+
+        <h1> Your love score results is out.</h1>
+            
+        <table>
+            <tr>
+                <td><h2>Id</h2></td>
+                <td><h2>Your name</h2></td>
+                <td></td>
+                <td><h2>Your lover's (or you wish) name</h2></td>
+                
+                <td><h2>Percentage</h2></td>
+                <td><h2>Result</h2></td>
+            </tr>
+
+            <tr>
+                <td><h2 data-th-text="*{dataId}"></h2></td>
+                <td><h2 data-th-text="*{fname}"></h2></td>
+                <td><img src ="/images/heart.png" width="40"></td>
+                <td><h2 data-th-text="*{sname}"></h2></td>
+                <td><h2 data-th-text="*{percentage}"></h2></td>
+                <td><h2 data-th-text="*{result}"></h2></td>
+            </tr>
+     
+        </table> 
+
+<!-- 
+            <p data-th-text="*{fname}"></p>
+            <br>
+            <p data-th-text="*{sname}"></p>
+            <br>
+            <p data-th-text="*{percentage}"></p>
+            <br>
+            <p data-th-text="*{result}"></p>
+            <br> -->
+
+        </div>
+    </body>
+</body>
+</html>

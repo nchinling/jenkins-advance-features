@@ -1,0 +1,36 @@
+
+.title {
+	display: flex;
+	align-items: center;
+}
+.title>h2 {
+	font-size: 2em;
+}
+
+.error{
+	font-family: monospace;
+	color:red;
+	font-weight: bold;
+}
+
+table, th, td {
+    border: 2px solid;
+  }
+
+
+  table {
+    /* width: 100%; */
+    border-collapse: collapse;
+    border-color: rgb(220, 30, 100); 
+  }
+
+  body {
+    background-image: url('/images/romance.png');
+    background-size: cover;
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
+

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <title>Lists</title>
+</head>
+<body>
+    <h1> All contacts </h1>
+
+    <table>
+        <tr data-th-each="c : ${datalist}"
+            data-th:classappend="${#numbers.parseInt(c.percentage) > 0} ? 'bold' : ''">
+            <td>
+                <a data-th-href="@{'/calculate/' + ${c.dataId}}"
+                data-th-text="${c.dataId}" >
+            </td>
+            <td><p data-th-text="*{c.fname}"></p></td>
+            <td><img src ="/images/heart.png" width="40"></td>
+            <td><p data-th-text="*{c.sname}"></p></td>
+            <td><p data-th-text="*{c.percentage}"></p></td>
+            <td><p data-th-text="*{c.result}"></p></td>
+            
+
+        </tr>
+
+    </table>
+</body>
+</html>
