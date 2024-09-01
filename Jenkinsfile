@@ -24,11 +24,7 @@ pipeline {
                 junit '**/surefire-reports/**/*.xml'
 
             }
-            // steps {
-            //     echo "Start Test"
-            //     bat "mvn test"
-            //     echo "Test completed"
-            // }
+
         }
         // stage("Sonar") {
         //     steps {
@@ -98,6 +94,20 @@ pipeline {
         success {
             // Actions to perform if the pipeline succeeds
             echo 'All stages passed successfully.'
+            echo 'Triggering promotion'
+            script {
+                // Automatically mark the current build as promoted
+                def promotedBuild = currentBuild.getRawBuild().getAction(hudson.plugins.promoted_builds.PromotionStatusAction)
+                
+                if (promotedBuild == null) {
+                    promotedBuild = new hudson.plugins.promoted_builds.PromotionStatusAction()
+                    currentBuild.getRawBuild().addAction(promotedBuild)
+                }
+                
+                promotedBuild.promote()
+                echo "Build ${env.BUILD_NUMBER} has been promoted."
+            }
+        
             
         }
         failure {
