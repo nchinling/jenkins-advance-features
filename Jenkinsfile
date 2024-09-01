@@ -21,6 +21,8 @@ pipeline {
                     bat "mvn test"
                 }
                 echo "Test completed"
+                junit '**/surefire-reports/**/*.xml'
+
             }
             // steps {
             //     echo "Start Test"
@@ -93,6 +95,11 @@ pipeline {
     }
 
     post {
+        success {
+            // Actions to perform if the pipeline succeeds
+            echo 'All stages passed successfully.'
+            
+        }
         failure {
             script {
                 mail bcc: '', body: 'Hello, This is an email from Jenkins pipeline. Build or containerisation has failed. Please check the logs for details.', cc: '', from: '', replyTo: '', subject: 'Build / Containerisation Failed', to: 'nchinling@gmail.com'
