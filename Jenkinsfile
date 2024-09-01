@@ -44,7 +44,7 @@ pipeline {
         }
         stage('Confirm Deploy to Staging') {
             steps {
-            input(message: 'Deploy to Stage', ok: 'Yes')
+            input(message: 'Deploy to Docker', ok: 'Yes')
             }
         }
         stage("Containerise and Send Email") {
