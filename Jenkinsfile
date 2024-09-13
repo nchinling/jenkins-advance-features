@@ -110,8 +110,9 @@ pipeline {
                     when {
                         expression { return params.DEPLOY_TO_AWS }
                     }
-                    echo 'Deploying to AWS'
-
+                    steps {
+                        echo 'Deploying to AWS'
+                    }
                     stage('Build ECR docker image') {
                         steps {
                             script {
