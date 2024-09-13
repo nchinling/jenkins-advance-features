@@ -67,7 +67,7 @@ pipeline {
                     }
                     steps {
                         script {
-                            echo 'Building Docker image'
+                            echo 'Building new Docker image'
                             bat "docker build -t nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} ."
 
                             echo 'Pushing Docker image'
