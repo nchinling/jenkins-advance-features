@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        booleanParam(name: 'DEPLOY_TO_DOCKER', defaultValue: false, description: 'Deploy to Dockerhub?')
+        booleanParam(name: 'DEPLOY_TO_DOCKER', defaultValue: true, description: 'Deploy to Dockerhub?')
     }
 
     tools {
@@ -103,9 +103,9 @@ pipeline {
                     // Zip the Dockerrun.aws.json for Elastic Beanstalk deployment
                     // bat '7z a deployment-package.zip Dockerrun.aws.json'
                     bat 'powershell -Command "Compress-Archive -Path Dockerrun.aws.json -DestinationPath deployment-package.zip"'
-
+                    echo 'zip completed '
                     // Create a new application version and update the environment
-                    withAWS(credentials: 'aws-jenkins', region: "${AWS_DEFAULT_REGION}") {
+                    withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
                         bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
                         bat "aws elasticbeanstalk create-application-version --application-name ${EB_APPLICATION_NAME} --version-label ${IMAGE_TAG} --source-bundle S3Bucket=${S3_BUCKET},S3Key=${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
                         bat "aws elasticbeanstalk update-environment --application-name ${EB_APPLICATION_NAME} --environment-name ${EB_ENVIRONMENT_NAME} --version-label ${IMAGE_TAG}"
