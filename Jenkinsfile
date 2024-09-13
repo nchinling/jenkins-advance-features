@@ -10,25 +10,33 @@ pipeline {
         jdk 'JDK21'
     }
 
+    environment {
+        AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_ACCOUNT_ID = '851725323495'
+        ECR_REPOSITORY = 'love-calc'
+        IMAGE_TAG = 'latest'
+        EB_APPLICATION_NAME = 'love-calculator'
+        EB_ENVIRONMENT_NAME = 'e-pwsnmbnqsj'
+        S3_BUCKET = 'elasticbeanstalk-us-east-1-851725323495'
+    }
+
     stages {
-        stage("Clean") {
+        stage('Clean') {
             steps {
-                echo "Start Clean"
-                bat "mvn clean"
-                echo "Clean successful"
+                echo 'Start Clean'
+                bat 'mvn clean'
+                echo 'Clean successful'
             }
         }
-        stage("Test") {
+        stage('Test') {
             steps {
-                echo "Start Test"
+                echo 'Start Test'
                 catchError(buildResult: 'UNSTABLE', message: 'Tests failed') {
-                    bat "mvn test"
+                    bat 'mvn test'
                 }
-                echo "Test completed"
+                echo 'Test completed'
                 junit '**/surefire-reports/**/*.xml'
-
             }
-
         }
         // stage("Sonar") {
         //     steps {
@@ -38,11 +46,11 @@ pipeline {
         //         echo "Sonar completed"
         //     }
         // }
-        stage("Build") {
+        stage('Build') {
             steps {
-                echo "Start Build"
-                bat "mvn install -DskipTests"
-                echo "Build completed"
+                echo 'Start Build'
+                bat 'mvn install -DskipTests'
+                echo 'Build completed'
             }
         }
         stage('Archive') {
@@ -54,10 +62,10 @@ pipeline {
         }
         stage('Confirm Deploy to Docker') {
             steps {
-            input(message: 'Deploy to Docker', ok: 'Yes')
+                input(message: 'Deploy to Docker', ok: 'Yes')
             }
         }
-        stage("Containerise and Send Email") {
+        stage('Containerise and Send Email') {
             parallel {
                 stage('Send Email on Build Success') {
                     steps {
@@ -71,7 +79,7 @@ pipeline {
                         stage('Build Docker Image') {
                             steps {
                                 script {
-                                    echo "Building Docker image"
+                                    echo 'Building Docker image'
                                     bat 'docker build -t nchinling/jenkins_lovecalc_repo:latest .'
                                 }
                             }
@@ -79,23 +87,23 @@ pipeline {
                         stage('Push Docker Image') {
                             steps {
                                 script {
-                                    echo "Pushing Docker image"
+                                    echo 'Pushing Docker image'
                                     withCredentials([usernamePassword(credentialsId: 'nchinling-dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                                         bat "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-										echo "Login to Docker Hub succeeded"
+                                        echo 'Login to Docker Hub succeeded'
                                         bat 'docker push nchinling/jenkins_lovecalc_repo:latest '
-										echo "Image pushed to Docker Hub successfully"
+                                        echo 'Image pushed to Docker Hub successfully'
                                     }
                                 }
                             }
                         }
-						stage('Send Email on successful push to Docker Hub') {
-							steps {
-								script {
-									mail bcc: '', body: 'Hello, This is an email from Jenkins pipeline. Push to Docker Hub is successful.', cc: '', from: '', replyTo: '', subject: 'Docker Build and Push Successful', to: 'nchinling@gmail.com'
-								}
-							}
-						}
+                        stage('Send Email on successful push to Docker Hub') {
+                            steps {
+                                script {
+                                    mail bcc: '', body: 'Hello, This is an email from Jenkins pipeline. Push to Docker Hub is successful.', cc: '', from: '', replyTo: '', subject: 'Docker Build and Push Successful', to: 'nchinling@gmail.com'
+                                }
+                            }
+                        }
                     }
                 }
                 stage('Trigger to AWS') {
@@ -104,6 +112,32 @@ pipeline {
                     }
                     steps {
                         echo 'Deploying to AWS'
+                        script {
+                            docker.build("${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}")
+                        }
+                    }
+                    steps {
+                        script {
+                            withAWS(credentials: 'aws-jenkins', region: "${AWS_DEFAULT_REGION}") {
+                                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851725323495.dkr.ecr.us-east-1.amazonaws.com'
+                                sh 'docker tag love-calc:latest 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
+                                sh 'docker push 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
+                            }
+                        }
+                    }
+
+                    steps {
+                        script {
+                            // Zip the Dockerrun.aws.json for Elastic Beanstalk deployment
+                            sh 'zip -r deployment-package.zip docker.aws.json'
+
+                            // Create a new application version and update the environment
+                            withAWS(credentials: 'aws-jenkins', region: "${AWS_DEFAULT_REGION}") {
+                                sh "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
+                                sh "aws elasticbeanstalk create-application-version --application-name ${EB_APPLICATION_NAME} --version-label ${IMAGE_TAG} --source-bundle S3Bucket=${S3_BUCKET},S3Key=${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
+                                sh "aws elasticbeanstalk update-environment --application-name ${EB_APPLICATION_NAME} --environment-name ${EB_ENVIRONMENT_NAME} --version-label ${IMAGE_TAG}"
+                            }
+                        }
                     }
                 }
             }
@@ -113,7 +147,7 @@ pipeline {
     post {
         success {
             // Actions to perform if the pipeline succeeds
-            echo 'All stages passed successfully.'            
+            echo 'All stages passed successfully.'
         }
         failure {
             script {
