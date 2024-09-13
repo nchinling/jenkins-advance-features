@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        booleanParam(name: 'DEPLOY_TO_DOCKER', defaultValue: false, description: 'Deploy to AWS?')
+        booleanParam(name: 'DEPLOY_TO_DOCKER', defaultValue: false, description: 'Deploy to Dockerhub?')
     }
 
     tools {
