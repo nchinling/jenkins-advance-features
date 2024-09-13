@@ -30,13 +30,14 @@ pipeline {
             }
 
         }
-        // stage("Sonar") {
-        //     steps {
-        //         echo "Start Sonar"
-        //         bat "mvn sonar:sonar"
-        //         echo "Sonar completed"
-        //     }
-        // }
+        stage("Sonar") {
+            steps {
+                echo "Start Sonar"
+                //static code analysis and skipping tests which was previously run
+                bat "mvn sonar:sonar -DskipTests"
+                echo "Sonar completed"
+            }
+        }
         stage("Build") {
             steps {
                 echo "Start Build"
