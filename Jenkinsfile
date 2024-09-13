@@ -94,10 +94,11 @@ pipeline {
                     echo 'Zip completed'
 
                     // Upload to S3
-                    bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${VERSION_LABEL}.zip"
+                    // bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${VERSION_LABEL}.zip"
 
                     // Create a new application version
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
+                        bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${VERSION_LABEL}.zip"
                         bat "aws elasticbeanstalk create-application-version --application-name ${EB_APPLICATION_NAME} --version-label ${VERSION_LABEL} --source-bundle S3Bucket=${S3_BUCKET},S3Key=${EB_APPLICATION_NAME}-${VERSION_LABEL}.zip"
 
                         // Update Elastic Beanstalk environment with the new version
