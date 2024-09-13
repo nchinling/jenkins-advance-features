@@ -1,12 +1,12 @@
 {
     "AWSEBDockerrunVersion": "1",
     "Image": {
-        "Name": "851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc",
+        "Name": "public.ecr.aws/c6o0p3c5/love-calculator",
         "Update": "true"
     },
     "Ports": [
         {
-            "ContainerPort": "80"
+            "ContainerPort": "8080"
         }
     ]
 }
