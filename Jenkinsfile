@@ -49,7 +49,7 @@ pipeline {
             steps {
                 echo 'Archiving artifacts...'
                 // Archive the specified files or directories
-                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true, fingerprint: true
             }
         }
         stage('Confirm Deploy to Docker') {
