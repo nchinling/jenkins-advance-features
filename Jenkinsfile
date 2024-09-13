@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        booleanParam(name: 'DEPLOY_TO_DOCKER', defaultValue: false, description: 'Deploy to Docker?')
+        booleanParam(name: 'DEPLOY_TO_DOCKER', defaultValue: false, description: 'Deploy to AWS?')
     }
 
     tools {
@@ -51,11 +51,6 @@ pipeline {
                 archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true, fingerprint: true
             }
         }
-        stage('Confirm Deploy to Docker') {
-            steps {
-                input(message: 'Deploy to Docker', ok: 'Yes')
-            }
-        }
         stage('Containerise and Send Email') {
             parallel {
                 stage('Send Email on Build Success') {
@@ -67,7 +62,7 @@ pipeline {
                 }
                 stage('Docker Operations') {
                     when {
-                        expression { return params.DEPLOY_TO_AWS }
+                        expression { return params.DEPLOY_TO_DOCKER }
                     }
                     steps {
                         script {
