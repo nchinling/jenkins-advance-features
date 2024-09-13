@@ -15,6 +15,7 @@ pipeline {
         AWS_ACCOUNT_ID = '851725323495'
         ECR_REPOSITORY = 'love-calc'
         IMAGE_TAG = 'latest'
+        VERSION_LABEL = "latest-${env.BUILD_ID}"
         EB_APPLICATION_NAME = 'love-calculator'
         EB_ENVIRONMENT_NAME = 'Love-calculator-env'
         S3_BUCKET = 'elasticbeanstalk-us-east-1-851725323495'
@@ -108,7 +109,9 @@ pipeline {
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
                         bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
                         bat "aws elasticbeanstalk create-application-version --application-name ${EB_APPLICATION_NAME} --version-label ${IMAGE_TAG} --source-bundle S3Bucket=${S3_BUCKET},S3Key=${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
-                        bat 'aws elasticbeanstalk update-environment --application-name ${EB_APPLICATION_NAME} --environment-name ${EB_ENVIRONMENT_NAME} --version-label def versionLabel = "latest-${env.BUILD_ID}"'
+                        bat """
+                        aws elasticbeanstalk update-environment --application-name ${EB_APPLICATION_NAME} --environment-name ${EB_ENVIRONMENT_NAME} --version-label ${VERSION_LABEL}
+                        """
                     }
                 }
             }
