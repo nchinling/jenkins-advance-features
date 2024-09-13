@@ -16,7 +16,7 @@ pipeline {
         ECR_REPOSITORY = 'love-calc'
         IMAGE_TAG = 'latest'
         EB_APPLICATION_NAME = 'love-calculator'
-        EB_ENVIRONMENT_NAME = 'e-pwsnmbnqsj'
+        EB_ENVIRONMENT_NAME = 'Love-calculator-env'
         S3_BUCKET = 'elasticbeanstalk-us-east-1-851725323495'
     }
 
