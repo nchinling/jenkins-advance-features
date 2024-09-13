@@ -14,8 +14,8 @@ pipeline {
         AWS_DEFAULT_REGION = 'us-east-1'
         AWS_ACCOUNT_ID = '851725323495'
         ECR_REPOSITORY = 'love-calc'
-        IMAGE_TAG = "latest-${env.BUILD_ID}" // Unique tag for Docker images
-        VERSION_LABEL = "latest-${env.BUILD_ID}" // Unique version label for Elastic Beanstalk
+        IMAGE_TAG = 'latest'
+        VERSION_LABEL = "latest-${env.BUILD_ID}"
         EB_APPLICATION_NAME = 'love-calculator'
         EB_ENVIRONMENT_NAME = 'Love-calculator-env'
         S3_BUCKET = 'elasticbeanstalk-us-east-1-851725323495'
@@ -68,12 +68,12 @@ pipeline {
                     steps {
                         script {
                             echo 'Building Docker image'
-                            bat "docker build -t nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} ."
+                            bat 'docker build -t nchinling/jenkins_lovecalc_repo:latest .'
 
                             echo 'Pushing Docker image'
                             withCredentials([usernamePassword(credentialsId: 'nchinling-dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                                 bat "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                                bat "docker push nchinling/jenkins_lovecalc_repo:${IMAGE_TAG}"
+                                bat 'docker push nchinling/jenkins_lovecalc_repo:latest'
                             }
                         }
                     }
@@ -89,19 +89,29 @@ pipeline {
             steps {
                 echo 'Deploying to AWS'
                 script {
-                    // Zip the Dockerrun.aws.json for Elastic Beanstalk deployment
-                    bat 'powershell -Command "Compress-Archive -Path Dockerrun.aws.json -DestinationPath deployment-package.zip -Force"'
-                    echo 'Zip completed'
-
-                    // Upload to S3
-                    bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${VERSION_LABEL}.zip"
-
-                    // Create a new application version
+                    // docker.build("${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}")
+                    // echo 'AWS Docker build succeeded'
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
-                        bat "aws elasticbeanstalk create-application-version --application-name ${EB_APPLICATION_NAME} --version-label ${VERSION_LABEL} --source-bundle S3Bucket=${S3_BUCKET},S3Key=${EB_APPLICATION_NAME}-${VERSION_LABEL}.zip"
+                        bat "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 
-                        // Update Elastic Beanstalk environment with the new version
-                        bat "aws elasticbeanstalk update-environment --application-name ${EB_APPLICATION_NAME} --environment-name ${EB_ENVIRONMENT_NAME} --version-label ${VERSION_LABEL}"
+                        bat "docker tag nchinling/jenkins_lovecalc_repo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
+
+                        // bat "docker tag ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
+
+                        bat "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
+                    }
+
+                    // Zip the Dockerrun.aws.json for Elastic Beanstalk deployment
+                    // bat '7z a deployment-package.zip Dockerrun.aws.json'
+                    bat 'powershell -Command "Compress-Archive -Path Dockerrun.aws.json -DestinationPath deployment-package.zip -Force"'
+                    echo 'zip completed '
+                    // Create a new application version and update the environment
+                    withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
+                        bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
+                        bat "aws elasticbeanstalk create-application-version --application-name ${EB_APPLICATION_NAME} --version-label ${IMAGE_TAG} --source-bundle S3Bucket=${S3_BUCKET},S3Key=${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
+                        bat """
+                        aws elasticbeanstalk update-environment --application-name ${EB_APPLICATION_NAME} --environment-name ${EB_ENVIRONMENT_NAME} --version-label ${VERSION_LABEL}
+                        """
                     }
                 }
             }
