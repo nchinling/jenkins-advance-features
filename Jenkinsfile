@@ -101,7 +101,7 @@ pipeline {
                     }
 
                     // Zip the Dockerrun.aws.json for Elastic Beanstalk deployment
-                    bat 'zip -r deployment-package.zip Dockerrun.aws.json'
+                    bat '7z a deployment-package.zip Dockerrun.aws.json'
 
                     // Create a new application version and update the environment
                     withAWS(credentials: 'aws-jenkins', region: "${AWS_DEFAULT_REGION}") {
