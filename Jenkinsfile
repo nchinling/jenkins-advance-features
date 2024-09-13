@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        booleanParam(name: 'DEPLOY_TO_AWS', defaultValue: false, description: 'Deploy to AWS?')
+        booleanParam(name: 'DEPLOY_TO_DOCKER', defaultValue: false, description: 'Deploy to Docker?')
     }
 
     tools {
@@ -66,6 +66,9 @@ pipeline {
                     }
                 }
                 stage('Docker Operations') {
+                    when {
+                        expression { return params.DEPLOY_TO_AWS }
+                    }
                     steps {
                         script {
                             echo 'Building Docker image'
@@ -81,16 +84,18 @@ pipeline {
                 }
             }
         }
-        stage('Trigger to AWS') {
-            when {
-                expression { return params.DEPLOY_TO_AWS }
+        stage('Confirm Deploy to AWS') {
+            steps {
+                input(message: 'Deploy to AWS', ok: 'Yes')
             }
+        }
+        stage('Trigger to AWS') {
             steps {
                 echo 'Deploying to AWS'
                 script {
                     docker.build("${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}")
 
-                    withAWS(credentials: 'aws-jenkins', region: "${AWS_DEFAULT_REGION}") {
+                    withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
                         bat 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851725323495.dkr.ecr.us-east-1.amazonaws.com'
                         bat 'docker tag love-calc:latest 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
                         bat 'docker push 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
