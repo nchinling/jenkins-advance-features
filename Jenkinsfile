@@ -90,7 +90,7 @@ pipeline {
                 echo 'Deploying to AWS'
                 script {
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
-                        bat 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851725323495.dkr.ecr.us-east-1.amazonaws.com'
+                        bat 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/c6o0p3c5'
                         // bat 'docker build -t love-calc .'
                         bat "docker tag nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} public.ecr.aws/c6o0p3c5/love-calculator:latest"
                         bat 'docker push public.ecr.aws/c6o0p3c5/love-calculator:latest'
