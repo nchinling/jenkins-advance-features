@@ -111,6 +111,7 @@ pipeline {
                         expression { return params.DEPLOY_TO_AWS }
                     }
                     echo 'Deploying to AWS'
+
                     stage('Build ECR docker image') {
                         steps {
                             script {
@@ -118,33 +119,34 @@ pipeline {
                             }
                         }
                     }
+
                     stage('Push to ECR') {
                         steps {
                             script {
                                 withAWS(credentials: 'aws-jenkins', region: "${AWS_DEFAULT_REGION}") {
-                                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851725323495.dkr.ecr.us-east-1.amazonaws.com'
-                                    sh 'docker tag love-calc:latest 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
-                                    sh 'docker push 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
+                                    bat 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851725323495.dkr.ecr.us-east-1.amazonaws.com'
+                                    bat 'docker tag love-calc:latest 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
+                                    bat 'docker push 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
                                 }
                             }
                         }
                     }
-                    stage('deploy to elastic beanstalk') {
+
+                    stage('Deploy to Elastic Beanstalk') {
                         steps {
                             script {
                                 // Zip the Dockerrun.aws.json for Elastic Beanstalk deployment
-                                sh 'zip -r deployment-package.zip docker.aws.json'
+                                bat 'zip -r deployment-package.zip Dockerrun.aws.json'
 
                                 // Create a new application version and update the environment
                                 withAWS(credentials: 'aws-jenkins', region: "${AWS_DEFAULT_REGION}") {
-                                    sh "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
-                                    sh "aws elasticbeanstalk create-application-version --application-name ${EB_APPLICATION_NAME} --version-label ${IMAGE_TAG} --source-bundle S3Bucket=${S3_BUCKET},S3Key=${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
-                                    sh "aws elasticbeanstalk update-environment --application-name ${EB_APPLICATION_NAME} --environment-name ${EB_ENVIRONMENT_NAME} --version-label ${IMAGE_TAG}"
+                                    bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
+                                    bat "aws elasticbeanstalk create-application-version --application-name ${EB_APPLICATION_NAME} --version-label ${IMAGE_TAG} --source-bundle S3Bucket=${S3_BUCKET},S3Key=${EB_APPLICATION_NAME}-${IMAGE_TAG}.zip"
+                                    bat "aws elasticbeanstalk update-environment --application-name ${EB_APPLICATION_NAME} --environment-name ${EB_ENVIRONMENT_NAME} --version-label ${IMAGE_TAG}"
                                 }
                             }
                         }
                     }
-
                 }
             }
         }
