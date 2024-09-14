@@ -99,7 +99,7 @@ pipeline {
                 echo 'Push Docker image to ECR'
                 script {
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
-                        bat 'aws ecr-public get-login-password | docker login --username AWS --password-stdin public.ecr.aws/c6o0p3c5'
+                        bat 'aws ecr-public get-login-password | docker login --username AWS --password-stdin public.ecr.aws/c6o0p3c5/love-calculator'
 
                         // bat 'docker build -t love-calc .'
                         bat "docker tag nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} public.ecr.aws/c6o0p3c5/love-calculator:latest"
