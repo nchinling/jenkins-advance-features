@@ -99,11 +99,11 @@ pipeline {
                 echo 'Push Docker image to ECR'
                 script {
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
-                        bat 'aws api.ecr-public get-login-password | docker login --username AWS --password-stdin public.ecr.aws/c6o0p3c5/love-calculator'
+                        bat 'aws ecr get-login-password | docker login --username AWS --password-stdin 851725323495.dkr.ecr.ap-southeast-1.amazonaws.com/love-calculator'
 
                         // bat 'docker build -t love-calc .'
-                        bat "docker tag nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} public.ecr.aws/c6o0p3c5/love-calculator:latest"
-                        bat 'docker push public.ecr.aws/c6o0p3c5/love-calculator:latest'
+                        bat "docker tag nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} 851725323495.dkr.ecr.ap-southeast-1.amazonaws.com/love-calculator:latest"
+                        bat 'docker push 851725323495.dkr.ecr.ap-southeast-1.amazonaws.com/love-calculator:latest'
                         // bat "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 
                         // bat "docker tag nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
