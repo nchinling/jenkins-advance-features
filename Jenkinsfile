@@ -11,14 +11,14 @@ pipeline {
     }
 
     environment {
-        AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_DEFAULT_REGION = 'ap-southeast-1'
         AWS_ACCOUNT_ID = '851725323495'
-        ECR_REPOSITORY = 'love-calc'
+        ECR_REPOSITORY = 'love-calculator'
         IMAGE_TAG = "latest-${env.BUILD_ID}" // Unique tag for Docker images
         VERSION_LABEL = "latest-${env.BUILD_ID}" // Unique version label for Elastic Beanstalk
         EB_APPLICATION_NAME = 'love-calculator'
         EB_ENVIRONMENT_NAME = 'Love-calculator-env'
-        S3_BUCKET = 'elasticbeanstalk-us-east-1-851725323495'
+        S3_BUCKET = 'elasticbeanstalk-ap-southeast-1-851725323495'
     }
 
     stages {
@@ -37,6 +37,14 @@ pipeline {
                 }
                 echo 'Test completed'
                 junit '**/surefire-reports/**/*.xml'
+            }
+        }
+        stage('Sonar') {
+            steps {
+                echo 'Start Sonar'
+                //static code analysis and skipping tests which was previously run
+                bat 'mvn sonar:sonar -DskipTests'
+                echo 'Sonar completed'
             }
         }
         stage('Build') {
@@ -87,10 +95,11 @@ pipeline {
         }
         stage('Trigger to AWS') {
             steps {
-                echo 'Deploying to AWS'
+                echo 'Push Docker image to ECR'
                 script {
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
-                        bat 'aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/c6o0p3c5'
+                        bat "aws ecr-public get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin public.ecr.aws/c6o0p3c5"
+
                         // bat 'docker build -t love-calc .'
                         bat "docker tag nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} public.ecr.aws/c6o0p3c5/love-calculator:latest"
                         bat 'docker push public.ecr.aws/c6o0p3c5/love-calculator:latest'

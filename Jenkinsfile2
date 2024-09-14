@@ -119,7 +119,7 @@ pipeline {
                     steps {
                         script {
                             withAWS(credentials: 'aws-jenkins', region: "${AWS_DEFAULT_REGION}") {
-                                sh 'aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851725323495.dkr.ecr.us-east-1.amazonaws.com'
+                                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851725323495.dkr.ecr.us-east-1.amazonaws.com'
                                 sh 'docker tag love-calc:latest 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
                                 sh 'docker push 851725323495.dkr.ecr.us-east-1.amazonaws.com/love-calc:latest'
                             }
