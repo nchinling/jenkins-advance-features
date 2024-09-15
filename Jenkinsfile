@@ -1,4 +1,4 @@
-/* groovylint-disable LineLength, NestedBlockDepth */
+/* groovylint-disable DuplicateStringLiteral, LineLength, NestedBlockDepth */
 pipeline {
     agent any
 
@@ -15,8 +15,8 @@ pipeline {
         AWS_DEFAULT_REGION = 'ap-southeast-1'
         AWS_ACCOUNT_ID = '851725323495'
         ECR_REPOSITORY = 'love-calculator'
-        IMAGE_TAG = "latest-${env.BUILD_ID}" // Unique tag for Docker images
-        VERSION_LABEL = "latest-${env.BUILD_ID}" // Unique version label for Elastic Beanstalk
+        IMAGE_TAG = "latest-${env.BUILD_ID}"
+        VERSION_LABEL = "latest-${env.BUILD_ID}"
         EB_APPLICATION_NAME = 'love-calculator'
         EB_ENVIRONMENT_NAME = 'Love-calculator-env'
         S3_BUCKET = 'elasticbeanstalk-ap-southeast-1-851725323495'
@@ -100,22 +100,12 @@ pipeline {
                 script {
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
                         bat 'aws ecr get-login-password | docker login --username AWS --password-stdin 851725323495.dkr.ecr.ap-southeast-1.amazonaws.com/love-calculator'
-
-                        // bat 'docker build -t love-calc .'
                         bat "docker tag nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} 851725323495.dkr.ecr.ap-southeast-1.amazonaws.com/love-calculator:latest"
                         bat 'docker push 851725323495.dkr.ecr.ap-southeast-1.amazonaws.com/love-calculator:latest'
-                        // bat "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-
-                        // bat "docker tag nchinling/jenkins_lovecalc_repo:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
-
-                    // bat "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
-                    }
+                        }
                     // Zip the Dockerrun.aws.json for Elastic Beanstalk deployment
                     bat 'powershell -Command "Compress-Archive -Path Dockerrun.aws.json -DestinationPath deployment-package.zip -Force"'
                     echo 'Zip completed'
-
-                    // Upload to S3
-                    // bat "aws s3 cp deployment-package.zip s3://${S3_BUCKET}/${EB_APPLICATION_NAME}-${VERSION_LABEL}.zip"
 
                     // Create a new application version
                     withAWS(credentials: 'AWS-Jenkins1', region: "${AWS_DEFAULT_REGION}") {
