@@ -9,13 +9,18 @@
 
 ## Introduction
 
-This Jenkins Pipeline project explores advanced features in Jenkins such as multi-branch builds, promotions, parameter triggers, upstream-downstream triggers, notifications, containerisation and deployment. More details will be provided. 
+This Jenkins Pipeline project explores advanced features in Jenkins including but not limited to multi-branch builds, tests, static code analysis, parameter triggers, input, notifications with email, containerisation with Docker and deployment to AWS. 
+
+Here’s a helpful video about this project:
+
+[![Watch the video](https://img.youtube.com/vi/CRetL1E_0OY/hqdefault.jpg)](https://youtu.be/CRetL1E_0OY)
 
 ## Features
 
-
-- xxxx
-- xxxx
-- xxxx
-- xxxx
+- Multi-branch builds
+- Boolean parameter for deploy to DockerHub
+- Email notifications
+- Docker containerisation
+- Input (Yes or No to AWS)
+- AWS deployment using Docker, Elastic Container Registry (ECR), Elastic Beanstalk (EB)
 
